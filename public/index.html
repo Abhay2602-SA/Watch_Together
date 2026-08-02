@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AS watch-together</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23e8a33d'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-weight='700' font-size='28' fill='%23241706' text-anchor='middle'%3EAS%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+
+<!-- ====================== LANDING ====================== -->
+<section id="landing" class="screen">
+  <div class="grain-overlay" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <div class="brand">
+      <span class="brand-mark">AS</span>
+      <span class="brand-name">watch-together</span>
+    </div>
+    <div id="auth-area" class="auth-area"></div>
+  </header>
+
+  <div class="landing-inner">
+    <div class="hero-split">
+      <div class="hero-copy">
+        <span class="eyebrow">Free · No download · No account required</span>
+        <h1 class="hero-title">One link. <em>Perfect sync.</em><br>Everyone in the room.</h1>
+        <p class="hero-sub">Paste a YouTube link, or share your screen for anything else. Everyone watches at the exact same moment — no downloads, no setup.</p>
+
+        <div class="landing-actions">
+          <div class="card">
+            <h2><span class="card-icon">▶</span> Start a room</h2>
+            <input id="create-username" type="text" placeholder="Your name" maxlength="24" />
+            <input id="create-password" type="text" placeholder="Room password (optional)" maxlength="100" />
+            <label class="checkbox-row"><input id="create-waiting-room" type="checkbox" /> Require host approval to join (waiting room)</label>
+            <button id="create-room-btn" class="btn btn-primary">Create room</button>
+          </div>
+          <div class="card">
+            <h2><span class="card-icon">⛓</span> Join a room</h2>
+            <input id="join-username" type="text" placeholder="Your name" maxlength="24" />
+            <input id="join-room-id" type="text" placeholder="Room code" maxlength="12" />
+            <input id="join-password" type="text" placeholder="Password (if required)" maxlength="100" />
+            <button id="join-room-btn" class="btn btn-secondary">Join room</button>
+          </div>
+        </div>
+
+        <p id="landing-error" class="error-text" hidden></p>
+      </div>
+
+      <!-- Signature element: a "reel" of everyone watching in lockstep,
+           styled like a strip of film — the literal, at-a-glance depiction
+           of "everyone at the exact same moment," which is the app's thesis. -->
+      <div class="reel-panel" aria-hidden="true">
+        <div class="reel-strip">
+          <div class="sprocket-col">
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <div class="reel-frames">
+            <div class="reel-frame">
+              <div class="sync-track"><div class="sync-fill"></div></div>
+              <div class="sync-dots">
+                <span class="sync-dot" style="--d:0s">A</span>
+                <span class="sync-dot" style="--d:.15s">B</span>
+                <span class="sync-dot" style="--d:.3s">C</span>
+                <span class="sync-dot" style="--d:.45s">D</span>
+              </div>
+              <span class="sync-label">frame-perfect, always</span>
+            </div>
+          </div>
+          <div class="sprocket-col">
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard: only populated/shown for signed-in users -->
+    <div id="dashboard" class="dashboard" hidden>
+      <div class="dash-grid">
+        <div class="dash-card">
+          <h3>Continue watching</h3>
+          <div id="dash-recent-rooms" class="dash-list"></div>
+        </div>
+        <div class="dash-card">
+          <h3>Friends</h3>
+          <div id="dash-friends" class="dash-list"></div>
+        </div>
+        <div class="dash-card">
+          <h3>What friends are watching</h3>
+          <div id="dash-friends-watching" class="dash-list"></div>
+        </div>
+        <div class="dash-card">
+          <h3>Trending this week</h3>
+          <div id="dash-trending" class="dash-list"></div>
+        </div>
+        <div class="dash-card dash-card-wide">
+          <h3>Scheduled watch parties</h3>
+          <div id="dash-parties" class="dash-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="brand">
+          <span class="brand-mark small">AS</span>
+          <span class="brand-name">watch-together</span>
+        </div>
+        <p class="footer-tagline">Built by Abhay.</p>
+      </div>
+      <div class="footer-links">
+        <a href="https://www.instagram.com/_.incognito._01/" target="_blank" rel="noopener noreferrer" class="footer-link">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg>
+          Instagram
+        </a>
+        <a href="https://github.com/Abhay2602-SA" target="_blank" rel="noopener noreferrer" class="footer-link">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg>
+          GitHub
+        </a>
+        <a href="mailto:abhay.kumar.work42@gmail.com" class="footer-link">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>
+          Email
+        </a>
+      </div>
+    </div>
+    <div class="footer-legal">© 2026 AS watch-together. All rights reserved.</div>
+  </footer>
+</section>
+
+<!-- ====================== ROOM ====================== -->
+<section id="room" class="screen" hidden>
+  <header class="room-header">
+    <div class="room-id-wrap">
+      <span class="brand-mark small">AS</span>
+      <div>
+        <div class="room-code-label">Room code</div>
+        <button id="copy-room-link" class="room-code" title="Copy invite link"></button>
+      </div>
+    </div>
+    <div class="room-header-right">
+      <div id="presence-list" class="presence-list"></div>
+      <button id="notif-bell-btn" class="btn btn-ghost icon-btn" hidden>🔔<span id="notif-badge" class="notif-badge" hidden>0</span></button>
+
+      <div class="more-menu-wrap">
+        <button id="more-menu-btn" class="btn btn-ghost icon-btn" title="More options">⋯<span id="more-menu-badge" class="notif-badge" hidden>0</span></button>
+        <div id="more-menu-dropdown" class="more-menu-dropdown" hidden>
+          <button id="friends-btn" class="more-menu-item" hidden>Friends</button>
+          <button id="room-security-btn" class="more-menu-item" hidden>Room settings</button>
+          <button id="join-requests-btn" class="more-menu-item" hidden>Join requests <span id="join-requests-badge" class="notif-badge" hidden>0</span></button>
+        </div>
+      </div>
+
+      <button id="chat-toggle-btn" class="btn btn-ghost chat-toggle">Chat</button>
+      <button id="leave-room-btn" class="btn btn-ghost">Leave</button>
+    </div>
+  </header>
+
+  <div id="room-error-banner" class="error-banner" hidden></div>
+  <div id="host-badge" class="host-badge" hidden>You're hosting — your playback controls sync for everyone</div>
+
+  <main class="room-main">
+    <div class="stage-col">
+      <div class="stage">
+        <div id="stage-empty" class="stage-empty">
+          <p>Paste a YouTube link below to start watching, or share your screen for anything else.</p>
+        </div>
+        <div id="youtube-player-mount" class="player-fill" hidden></div>
+        <video id="file-player" class="player-fill" hidden controls></video>
+        <video id="screenshare-player" class="player-fill" hidden autoplay></video>
+
+        <div id="subtitle-overlay" class="subtitle-overlay" hidden></div>
+      </div>
+
+      <div class="source-bar">
+        <input id="video-url-input" type="text" placeholder="Paste a YouTube link, or any direct video URL…" />
+        <button id="load-video-btn" class="btn btn-primary">Load</button>
+        <span class="divider">or</span>
+        <button id="share-screen-btn" class="btn btn-secondary">Share screen</button>
+        <button id="stop-share-btn" class="btn btn-ghost" hidden>Stop sharing</button>
+        <button id="bookmark-video-btn" class="btn btn-ghost" hidden title="Save to your bookmarks">☆ Bookmark</button>
+      </div>
+
+      <div class="subtitle-bar">
+        <label class="file-btn">
+          Upload subtitles (.srt/.vtt)
+          <input id="subtitle-upload" type="file" accept=".srt,.vtt" hidden />
+        </label>
+        <select id="subtitle-track-select"><option value="">Subtitles off</option></select>
+        <select id="subtitle-translate-lang">
+          <option value="">Translate to…</option>
+          <option value="Spanish">Spanish</option>
+          <option value="French">French</option>
+          <option value="German">German</option>
+          <option value="Hindi">Hindi</option>
+          <option value="Japanese">Japanese</option>
+          <option value="Portuguese">Portuguese</option>
+        </select>
+        <span class="subtitle-control">
+          <span class="mini-label-inline">Offset</span>
+          <input id="subtitle-offset" type="number" step="0.5" value="0" class="subtitle-offset-input" />
+          <span class="mini-label-inline">sec</span>
+        </span>
+        <span class="subtitle-control">
+          <span class="mini-label-inline">Size</span>
+          <input id="subtitle-size" type="range" min="14" max="36" value="20" />
+        </span>
+        <input id="subtitle-color" type="color" value="#ffffff" title="Subtitle color" />
+      </div>
+
+
+      <div class="av-bar">
+        <button id="toggle-mic-btn" class="av-btn" data-on="false" title="Toggle microphone">
+          <span class="av-btn-icon">🎤</span>
+          <span class="av-btn-text">Mic off</span>
+        </button>
+        <button id="toggle-cam-btn" class="av-btn" data-on="false" title="Toggle camera">
+          <span class="av-btn-icon">📷</span>
+          <span class="av-btn-text">Camera off</span>
+        </button>
+      </div>
+    </div>
+
+    <aside id="people-rail" class="people-rail">
+      <div class="people-rail-header">People</div>
+      <p class="people-hint">Click anyone to pin them full-size — click again to unpin.</p>
+      <div id="people-grid" class="people-grid">
+        <div class="video-tile self-tile" id="local-video-tile">
+          <video id="local-video-preview" autoplay muted playsinline></video>
+          <div class="tile-off-icon">📷</div>
+          <div class="tile-label">You</div>
+        </div>
+      </div>
+    </aside>
+
+    <aside id="chat-col" class="chat-col">
+      <div class="sidebar-tabs">
+        <button id="tab-chat-btn" class="sidebar-tab active">Chat</button>
+        <button id="tab-queue-btn" class="sidebar-tab">Queue</button>
+        <button id="tab-ai-btn" class="sidebar-tab">Ask AI</button>
+        <button id="drawer-close-btn" class="drawer-close-btn" title="Close">✕</button>
+      </div>
+
+      <div id="chat-panel" class="sidebar-panel">
+        <div id="chat-log" class="chat-log"></div>
+        <form id="chat-form" class="chat-form">
+          <input id="chat-input" type="text" placeholder="Say something… (@name to mention)" maxlength="1000" autocomplete="off" />
+          <button type="submit" class="btn btn-primary">Send</button>
+        </form>
+      </div>
+
+      <div id="queue-panel" class="sidebar-panel" hidden>
+        <div id="queue-list" class="chat-log"></div>
+        <form id="queue-form" class="chat-form queue-form">
+          <input id="queue-url-input" type="text" placeholder="Video URL…" autocomplete="off" />
+          <button type="submit" class="btn btn-primary">Add</button>
+        </form>
+      </div>
+
+      <div id="ai-panel" class="sidebar-panel" hidden>
+        <div class="ai-quick-actions">
+          <button class="btn btn-secondary btn-sm ai-quick" data-kind="summarize">Summarize</button>
+          <button class="btn btn-secondary btn-sm ai-quick" data-kind="explain_scene">Explain scene</button>
+          <button class="btn btn-secondary btn-sm ai-quick" data-kind="trivia">Trivia</button>
+          <button class="btn btn-secondary btn-sm ai-quick" data-kind="discussion_questions">Discuss</button>
+        </div>
+        <div id="ai-log" class="chat-log">
+          <div class="chat-msg system">Ask about whatever's currently playing, or use a quick action above.</div>
+        </div>
+        <form id="ai-form" class="chat-form">
+          <input id="ai-input" type="text" placeholder="Ask the AI assistant…" maxlength="500" autocomplete="off" />
+          <button type="submit" class="btn btn-primary">Ask</button>
+        </form>
+      </div>
+    </aside>
+  </main>
+</section>
+
+<!-- ====================== Global overlay panels ====================== -->
+
+<div id="friends-panel" class="side-panel" hidden>
+  <div class="side-panel-header">
+    <h3>Friends</h3>
+    <button class="btn btn-ghost close-panel-btn" data-close="friends-panel">Close</button>
+  </div>
+  <div class="friends-search">
+    <input id="friend-search-input" type="text" placeholder="Search by name or email…" />
+    <div id="friend-search-results" class="side-list"></div>
+  </div>
+  <div id="friend-requests" class="side-list"></div>
+  <div id="friend-list" class="side-list"></div>
+</div>
+
+<div id="profile-panel" class="side-panel" hidden>
+  <div class="side-panel-header">
+    <h3>Your profile</h3>
+    <button class="btn btn-ghost close-panel-btn" data-close="profile-panel">Close</button>
+  </div>
+  <div id="profile-stats" class="profile-stats"></div>
+  <label class="mini-label">Bio</label>
+  <textarea id="profile-bio" maxlength="500" rows="3" placeholder="Tell people a bit about yourself…"></textarea>
+  <label class="mini-label">Favorite genres (comma-separated)</label>
+  <input id="profile-genres" type="text" placeholder="sci-fi, comedy, anime…" />
+  <button id="profile-save-btn" class="btn btn-primary btn-sm">Save</button>
+  <div id="profile-achievements" class="achievements"></div>
+  <h4>Recent watch history</h4>
+  <div id="profile-history" class="side-list"></div>
+</div>
+
+<div id="library-panel" class="side-panel" hidden>
+  <div class="side-panel-header">
+    <h3>My library</h3>
+    <button class="btn btn-ghost close-panel-btn" data-close="library-panel">Close</button>
+  </div>
+  <h4>Playlists</h4>
+  <form id="new-playlist-form" class="inline-form">
+    <input id="new-playlist-name" type="text" placeholder="New playlist name…" />
+    <button class="btn btn-secondary btn-sm">Create</button>
+  </form>
+  <div id="playlists-list" class="side-list"></div>
+  <h4>Bookmarks</h4>
+  <div id="bookmarks-list" class="side-list"></div>
+</div>
+
+<div id="notifications-panel" class="side-panel" hidden>
+  <div class="side-panel-header">
+    <h3>Notifications</h3>
+    <button class="btn btn-ghost close-panel-btn" data-close="notifications-panel">Close</button>
+  </div>
+  <div id="notifications-list" class="side-list"></div>
+</div>
+
+<div id="room-security-panel" class="side-panel" hidden>
+  <div class="side-panel-header">
+    <h3>Room settings</h3>
+    <button class="btn btn-ghost close-panel-btn" data-close="room-security-panel">Close</button>
+  </div>
+  <label class="mini-label">Password (leave blank for none)</label>
+  <input id="security-password" type="text" maxlength="100" />
+  <label class="checkbox-row"><input id="security-waiting-room" type="checkbox" /> Require host approval to join</label>
+  <button id="security-save-btn" class="btn btn-primary btn-sm">Save</button>
+</div>
+
+<div id="join-requests-panel" class="side-panel" hidden>
+  <div class="side-panel-header">
+    <h3>Join requests</h3>
+    <button class="btn btn-ghost close-panel-btn" data-close="join-requests-panel">Close</button>
+  </div>
+  <div id="join-requests-list" class="side-list"></div>
+</div>
+
+<div id="toast-container" class="toast-container"></div>
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
