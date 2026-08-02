@@ -823,7 +823,18 @@ setInterval(() => {
 // 8. Screen share + voice/video (WebRTC mesh)
 // ---------------------------------------------------------------------
 
-const ICE_SERVERS = [{ urls: "stun:stun.l.google.com:19302" }];
+// STUN alone frequently fails to connect two devices on different
+// networks (mobile carrier NAT especially) — a TURN relay is the
+// fallback for exactly that case. Openrelay is a free, publicly
+// documented TURN service commonly used for this; fine for testing/small
+// scale, but a dedicated TURN provider (Twilio, Metered, or self-hosted
+// coturn) is worth it once this has real traffic.
+const ICE_SERVERS = [
+  { urls: "stun:stun.l.google.com:19302" },
+  { urls: "turn:openrelay.metered.ca:80", username: "openrelayproject", credential: "openrelayproject" },
+  { urls: "turn:openrelay.metered.ca:443", username: "openrelayproject", credential: "openrelayproject" },
+  { urls: "turn:openrelay.metered.ca:443?transport=tcp", username: "openrelayproject", credential: "openrelayproject" },
+];
 
 $("#share-screen-btn").addEventListener("click", startScreenShare);
 $("#stop-share-btn").addEventListener("click", stopScreenShare);
