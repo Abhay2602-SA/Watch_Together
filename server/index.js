@@ -452,7 +452,7 @@ io.on("connection", (socket) => {
 
   // ---------------- screen share ----------------
 
-  socket.on("start-screen-share", ({ roomId }) => {
+  socket.on("start-screen-share", ({ roomId, streamId }) => {
     const room = rooms.get(roomId);
     if (!room) return;
     if (room.screenShare.active) {
@@ -460,9 +460,9 @@ io.on("connection", (socket) => {
       return;
     }
     const user = room.users.get(socket.id);
-    room.screenShare = { active: true, socketId: socket.id, username: user?.username };
+    room.screenShare = { active: true, socketId: socket.id, username: user?.username, streamId };
     room.video.type = "screenshare";
-    io.to(roomId).emit("screen-share-started", { socketId: socket.id, username: user?.username });
+    io.to(roomId).emit("screen-share-started", { socketId: socket.id, username: user?.username, streamId });
   });
 
   socket.on("stop-screen-share", ({ roomId }) => {

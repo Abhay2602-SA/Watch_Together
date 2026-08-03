@@ -65,6 +65,9 @@ const state = {
   screenStream: null,
   micOn: false,
   camOn: false,
+  screenShareSourceId: null,
+  screenShareStreamId: null,
+  lastKnownVideo: null,
   pinnedId: null,
   youtubePlayer: null,
   youtubeReady: false,
@@ -343,6 +346,11 @@ function enterRoom(roomState) {
 
   if (roomState.video && roomState.video.type !== "none") applyVideoChanged(roomState.video);
 
+  if (roomState.screenShare?.active) {
+    state.screenShareSourceId = roomState.screenShare.socketId;
+    state.screenShareStreamId = roomState.screenShare.streamId;
+  }
+
   initLocalMediaControls();
   roomState.users.forEach((u) => {
     if (u.id !== state.userId && !state.peers.has(u.id)) callPeer(u.id);
@@ -540,6 +548,7 @@ socket.on("screenshare-required", () => {
 socket.on("video-changed", applyVideoChanged);
 
 function applyVideoChanged(video) {
+  state.lastKnownVideo = video;
   $("#stage-empty").hidden = true;
   $("#youtube-player-mount").hidden = true;
   $("#file-player").hidden = true;
@@ -849,7 +858,7 @@ async function startScreenShare() {
     }
     return;
   }
-  socket.emit("start-screen-share", { roomId: state.roomId });
+  socket.emit("start-screen-share", { roomId: state.roomId, streamId: state.screenStream.id });
 
   $("#stage-empty").hidden = true;
   $("#youtube-player-mount").hidden = true;
@@ -879,10 +888,50 @@ function stopScreenShare() {
   $("#stop-share-btn").hidden = true;
 }
 
-socket.on("screen-share-started", ({ username }) => {
+// A remote track might arrive before or after we're told (via
+// screen-share-started) which stream.id is the actual screen share, since
+// one is WebRTC renegotiation and the other is a plain socket event. This
+// cache lets either order resolve correctly instead of assuming one.
+const pendingScreenStreams = new Map(); // streamId -> MediaStream
+
+function showRemoteScreenShare(stream) {
+  $("#stage-empty").hidden = true;
+  $("#youtube-player-mount").hidden = true;
+  $("#file-player").hidden = true;
+  const el = $("#screenshare-player");
+  el.hidden = false;
+  el.srcObject = stream;
+}
+
+function hideRemoteScreenShare() {
+  $("#screenshare-player").hidden = true;
+  $("#screenshare-player").srcObject = null;
+  if (state.lastKnownVideo && state.lastKnownVideo.type !== "none") {
+    applyVideoChanged(state.lastKnownVideo);
+  } else {
+    $("#stage-empty").hidden = false;
+  }
+}
+
+socket.on("screen-share-started", ({ socketId, username, streamId }) => {
+  state.screenShareSourceId = socketId;
+  state.screenShareStreamId = streamId;
   renderChatMessage({ system: true, message: `${username} started sharing their screen` });
+
+  const pending = pendingScreenStreams.get(streamId);
+  if (pending) {
+    showRemoteScreenShare(pending);
+    pendingScreenStreams.delete(streamId);
+    // In case a small tile got created for it before we knew it was the
+    // share (event-ordering race), drop the duplicate.
+    const tile = document.getElementById(`tile-${socketId}`);
+    if (tile && tile.querySelector("video")?.srcObject?.id === streamId) tile.remove();
+  }
 });
 socket.on("screen-share-stopped", () => {
+  state.screenShareSourceId = null;
+  state.screenShareStreamId = null;
+  hideRemoteScreenShare();
   renderChatMessage({ system: true, message: `Screen share ended` });
 });
 
@@ -1022,6 +1071,18 @@ function createPeerConnection(remoteId) {
   };
 
   pc.ontrack = (e) => {
+    const stream = e.streams[0];
+
+    if (stream && state.screenShareStreamId && stream.id === state.screenShareStreamId) {
+      showRemoteScreenShare(stream);
+      return;
+    }
+    if (stream && !state.screenShareStreamId) {
+      // Don't know yet whether this is the screen share or a camera —
+      // stash it; screen-share-started (whenever it arrives) resolves this.
+      pendingScreenStreams.set(stream.id, stream);
+    }
+
     let tile = document.getElementById(`tile-${remoteId}`);
     if (!tile) {
       const username = state.users.get(remoteId)?.username || "Guest";
